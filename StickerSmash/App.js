@@ -28,7 +28,6 @@ const App = () => {
   const cardOpacity = useSharedValue(1);
   const nextCardScale = useSharedValue(0.9);
   const isTransitioning = useSharedValue(false);
-  const currentUser = users[currentIndex];
 
   const getNextIndex = useCallback(
     (index) => (index + 1) % users.length,
@@ -115,6 +114,8 @@ const App = () => {
     opacity: interpolate(nextCardScale.value, [0.9, 1], [0.5, 1]),
   }));
 
+  const currentUser = users[currentIndex];
+
   return (
     <GestureHandlerRootView style={styles.pageContainer}>
       <View style={styles.header}>
@@ -123,31 +124,33 @@ const App = () => {
           <Icon name="menu-outline" size={24} color="#FF7A00" />
         </TouchableOpacity>
       </View>
-      <View style={styles.cardStack}>
-        <Animated.View style={[styles.cardContainer, nextCardStyle]}>
-          <Card user={users[getNextIndex(currentIndex)]} />
-        </Animated.View>
-        <GestureDetector gesture={gesture}>
-          <Animated.View style={[styles.cardContainer, cardStyle]}>
-            <Card user={users[currentIndex]} />
+      <View style={styles.content}>
+        <View style={styles.cardStack}>
+          <Animated.View style={[styles.cardContainer, nextCardStyle]}>
+            <Card user={users[getNextIndex(currentIndex)]} />
           </Animated.View>
-        </GestureDetector>
-      </View>
-      <View style={styles.eventDetails}>
-        <Text style={styles.eventTitle}>{currentUser.eventTitle}</Text>
-        <Text style={styles.eventDate}>{currentUser.eventDate} • {currentUser.eventLocation}</Text>
-        <Text style={styles.attendeesTitle}>LOOK WHO ARE GOING</Text>
-        <View style={styles.attendees}>
-          {users.slice(0, 4).map((user, index) => (
-            <Image key={index} source={{ uri: user.image }} style={styles.attendeeImage} />
-          ))}
-          <TouchableOpacity style={styles.moreAttendeesButton}>
-            <Icon name="chevron-forward" size={24} color="#FF7A00" />
+          <GestureDetector gesture={gesture}>
+            <Animated.View style={[styles.cardContainer, cardStyle]}>
+              <Card user={currentUser} />
+            </Animated.View>
+          </GestureDetector>
+        </View>
+        <View style={styles.eventDetails}>
+          <Text style={styles.eventTitle}>{currentUser.eventTitle}</Text>
+          <Text style={styles.eventDate}>{`${currentUser.eventDate} • ${currentUser.eventLocation}`}</Text>
+          <Text style={styles.attendeesTitle}>LOOK WHO ARE GOING</Text>
+          <View style={styles.attendees}>
+            {users.slice(0, 4).map((user, index) => (
+              <Image key={index} source={{ uri: user.image }} style={styles.attendeeImage} />
+            ))}
+            <TouchableOpacity style={styles.moreAttendeesButton}>
+              <Icon name="chevron-forward" size={24} color="#FF7A00" />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.goingButton}>
+            <Text style={styles.goingButtonText}>I'm Going</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.goingButton}>
-          <Text style={styles.goingButtonText}>I'm Going</Text>
-        </TouchableOpacity>
       </View>
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerButton}>
@@ -157,7 +160,7 @@ const App = () => {
           <Icon name="person-outline" size={24} color="#C0C0C0" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerButton}>
-          <Icon name="git-compare-outline" size={24} color="#C0C0C0" />
+          <Icon name="chatbubble-outline" size={24} color="#C0C0C0" />
           <View style={styles.notificationBadge}>
             <Text style={styles.notificationText}>5</Text>
           </View>
@@ -185,9 +188,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FF7A00',
+    flex: 1,
+    textAlign: 'center',
   },
   menuButton: {
     padding: 5,
+  },
+  content: {
+    flex: 1,
+    backgroundColor: '#F8F8F8',
   },
   cardStack: {
     alignItems: "center",
