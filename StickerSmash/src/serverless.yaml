@@ -1,0 +1,27 @@
+org: anshubeta
+app: otp-service
+service: otp-service
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: us-east-1
+
+functions:
+  app:
+    handler: handler.handler
+    events:
+      - http:
+          path: get-otp
+          method: post
+      - http:
+          path: verify-otp
+          method: post
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 4000

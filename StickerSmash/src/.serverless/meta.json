@@ -1,0 +1,83 @@
+{
+  "/home/anshuman/Desktop/reactNativeApps/StickerSmash/src": {
+    "versionSfCore": null,
+    "versionFramework": "4.1.11",
+    "isWithinCompose": false,
+    "isCompose": false,
+    "composeOrgName": null,
+    "composeServiceName": null,
+    "servicePath": "/home/anshuman/Desktop/reactNativeApps/StickerSmash/src",
+    "serviceConfigFileName": "serverless.yaml",
+    "service": {
+      "org": "anshubeta",
+      "app": "otp-service",
+      "service": "otp-service",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs14.x",
+        "stage": "dev",
+        "region": "us-east-1"
+      },
+      "functions": {
+        "app": {
+          "handler": "handler.handler",
+          "events": [
+            {
+              "http": {
+                "path": "get-otp",
+                "method": "post"
+              }
+            },
+            {
+              "http": {
+                "path": "verify-otp",
+                "method": "post"
+              }
+            }
+          ]
+        }
+      },
+      "plugins": [
+        "serverless-offline"
+      ]
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: anshubeta\n# \"app\" enables Serverless Framework Dashboard features and sharing them with other Services.\napp: otp-service\nservice: otp-service\n\nprovider:\n  name: aws\n  runtime: nodejs14.x\n  stage: dev\n  region: us-east-1\n\nfunctions:\n  app:\n    handler: handler.handler\n    events:\n      - http:\n          path: get-otp\n          method: post\n      - http:\n          path: verify-otp\n          method: post\n\nplugins:\n  - serverless-offline",
+    "command": [
+      "create"
+    ],
+    "options": {
+      "template": "aws-nodejs",
+      "path": "otp-service"
+    },
+    "error": {
+      "message": "AWS credentials missing or invalid. Run \"serverless\" to set up AWS credentials, or learn more in our docs: http://slss.io/aws-creds-setup. Original error from AWS: Could not load credentials from any providers",
+      "code": "AWS_CREDENTIALS_MISSING"
+    },
+    "machineId": "480df257f4689b5de178ea039a5eb39f",
+    "accessKeyV2": "<REDACTED>",
+    "accessKeyV1": "<REDACTED>",
+    "orgId": "991f0b67-4daf-4573-9e4d-c88232bc63d6",
+    "orgName": "anshubeta",
+    "userId": "cDrn2HqpX2ZpVlr9c2",
+    "dashboard": {
+      "isEnabledForService": true,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": {
+        "providers": false,
+        "monitoring": false
+      },
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": "wLMRMVrkNZxwCQ2rSP",
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "userName": "anshubeta",
+    "subscription": null,
+    "userEmail": "tiwarianshu9211@gmail.com",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}

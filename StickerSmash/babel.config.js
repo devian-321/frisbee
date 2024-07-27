@@ -1,6 +1,12 @@
-module.exports = function(api) {
+const { default: plugin } = require("vike/plugin");
+
+module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["babel-preset-expo"],
+    plugins: [
+      "@babel/plugin-proposal-export-namespace-from",
+      "react-native-reanimated/plugin",
+    ],
   };
 };
