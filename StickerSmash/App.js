@@ -1,123 +1,72 @@
-import React, { useCallback, useState } from "react";
-import { Dimensions, StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, {
-  interpolate,
   runOnJS,
-  useAnimatedReaction,
-  useAnimatedStyle,
+  useAnimatedScrollHandler,
   useSharedValue,
-  withSpring,
 } from "react-native-reanimated";
+import Icon from "react-native-vector-icons/Ionicons";
 import Card from "./src/components/tinderCard";
 import users from "./TinderAssets/assets/data/users";
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 
 const App = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const translateX = useSharedValue(0);
-  const rotate = useSharedValue(0);
-  const cardOpacity = useSharedValue(1);
-  const nextCardScale = useSharedValue(0.9);
-  const isTransitioning = useSharedValue(false);
+  const [currentIndex, setCurrentIndex] = useState(1);
+  const flatListRef = useRef(null);
+  const scrollX = useSharedValue(0);
 
-  const getNextIndex = useCallback(
-    (index) => (index + 1) % users.length,
-    [users.length]
-  );
+  const extendedUsers = useMemo(() => {
+    return [users[users.length - 1], ...users, users[0]];
+  }, [users]);
 
-  const resetCardPosition = useCallback(() => {
-    translateX.value = 0;
-    rotate.value = 0;
-    cardOpacity.value = 1;
-    nextCardScale.value = 0.9;
-    isTransitioning.value = false;
-  }, [translateX, rotate, cardOpacity, nextCardScale, isTransitioning]);
+  const scrollToIndex = useCallback((index) => {
+    flatListRef.current?.scrollToIndex({ index, animated: false });
+    setCurrentIndex(index);
+  }, []);
 
-  const swipeCard = useCallback(
-    (direction) => {
-      setCurrentIndex((prevIndex) => getNextIndex(prevIndex));
-      resetCardPosition();
+  const onScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
     },
-    [getNextIndex, resetCardPosition]
-  );
+    onMomentumEnd: (event) => {
+      const offsetX = event.contentOffset.x;
+      const contentWidth = event.contentSize.width;
 
-  useAnimatedReaction(
-    () => isTransitioning.value,
-    (transitioning) => {
-      if (transitioning) {
-        runOnJS(swipeCard)();
+      if (offsetX <= 0) {
+        runOnJS(scrollToIndex)(users.length);
+      } else if (offsetX >= contentWidth - SCREEN_WIDTH) {
+        runOnJS(scrollToIndex)(1);
       }
     },
-    [swipeCard]
+  });
+
+  const renderItem = useCallback(({ item, index }) => {
+    return (
+      <View style={styles.carouselItem}>
+        <Card user={item} attendees={users} />
+      </View>
+    );
+  }, []);
+
+  const getItemLayout = useCallback(
+    (_, index) => ({
+      length: SCREEN_WIDTH,
+      offset: SCREEN_WIDTH * index,
+      index,
+    }),
+    []
   );
-
-  const gesture = Gesture.Pan()
-    .onUpdate((event) => {
-      if (isTransitioning.value) return;
-      translateX.value = event.translationX;
-      rotate.value = interpolate(
-        event.translationX,
-        [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-        [-10, 0, 10]
-      );
-      cardOpacity.value = interpolate(
-        Math.abs(event.translationX),
-        [0, SCREEN_WIDTH / 2],
-        [1, 0.5]
-      );
-      nextCardScale.value = interpolate(
-        Math.abs(event.translationX),
-        [0, SCREEN_WIDTH / 2],
-        [0.9, 1]
-      );
-    })
-    .onEnd((event) => {
-      if (isTransitioning.value) return;
-      if (Math.abs(event.velocityX) < SWIPE_THRESHOLD) {
-        translateX.value = withSpring(0);
-        rotate.value = withSpring(0);
-        cardOpacity.value = withSpring(1);
-        nextCardScale.value = withSpring(0.9);
-      } else {
-        isTransitioning.value = true;
-        const direction = event.velocityX > 0 ? "right" : "left";
-        translateX.value = withSpring(
-          direction === "right" ? SCREEN_WIDTH : -SCREEN_WIDTH,
-          {
-            overshootClamping: true,
-            restSpeedThreshold: 100,
-            restDisplacementThreshold: 100,
-          }
-        );
-      }
-    });
-
-  const cardStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { rotate: `${rotate.value}deg` },
-    ],
-    opacity: cardOpacity.value,
-  }));
-
-  const nextCardStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: nextCardScale.value }],
-    opacity: interpolate(nextCardScale.value, [0.9, 1], [0.5, 1]),
-  }));
-
-  const currentUser = users[currentIndex];
 
   return (
-    <GestureHandlerRootView style={styles.pageContainer}>
+    <View style={styles.pageContainer}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>FrisBee</Text>
         <TouchableOpacity style={styles.menuButton}>
@@ -125,32 +74,22 @@ const App = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
-        <View style={styles.cardStack}>
-          <Animated.View style={[styles.cardContainer, nextCardStyle]}>
-            <Card user={users[getNextIndex(currentIndex)]} />
-          </Animated.View>
-          <GestureDetector gesture={gesture}>
-            <Animated.View style={[styles.cardContainer, cardStyle]}>
-              <Card user={currentUser} />
-            </Animated.View>
-          </GestureDetector>
-        </View>
-        <View style={styles.eventDetails}>
-          <Text style={styles.eventTitle}>{currentUser.eventTitle}</Text>
-          <Text style={styles.eventDate}>{`${currentUser.eventDate} • ${currentUser.eventLocation}`}</Text>
-          <Text style={styles.attendeesTitle}>LOOK WHO ARE GOING</Text>
-          <View style={styles.attendees}>
-            {users.slice(0, 4).map((user, index) => (
-              <Image key={index} source={{ uri: user.image }} style={styles.attendeeImage} />
-            ))}
-            <TouchableOpacity style={styles.moreAttendeesButton}>
-              <Icon name="chevron-forward" size={24} color="#FF7A00" />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={styles.goingButton}>
-            <Text style={styles.goingButtonText}>I'm Going</Text>
-          </TouchableOpacity>
-        </View>
+        <Animated.FlatList
+          ref={flatListRef}
+          data={extendedUsers}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={onScrollHandler}
+          scrollEventThrottle={16}
+          getItemLayout={getItemLayout}
+          initialScrollIndex={1}
+          initialNumToRender={3}
+          maxToRenderPerBatch={3}
+          windowSize={3}
+        />
       </View>
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerButton}>
@@ -166,124 +105,82 @@ const App = () => {
           </View>
         </TouchableOpacity>
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F0F0F0", // Slightly grey background
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 40,
     paddingBottom: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FF7A00',
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#FF7A00",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   menuButton: {
     padding: 5,
   },
   content: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: "#F0F0F0",
+    marginTop: 20, // Added margin between header and card
   },
-  cardStack: {
-    alignItems: "center",
+  carouselItem: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT * 0.7,
     justifyContent: "center",
-    height: SCREEN_HEIGHT * 0.6,
-  },
-  cardContainer: {
-    position: "absolute",
-    width: SCREEN_WIDTH * 0.9,
-    height: SCREEN_HEIGHT * 0.5,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  eventDetails: {
-    padding: 20,
-  },
-  eventTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  eventDate: {
-    fontSize: 16,
-    color: '#777',
-    marginBottom: 20,
-  },
-  attendeesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  attendees: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  attendeeImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  moreAttendeesButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  goingButton: {
-    backgroundColor: '#FF7A00',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  goingButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    alignItems: "center",
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: "#F0F0F0",
   },
   footerButton: {
     padding: 10,
   },
   notificationBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 5,
     right: 5,
-    backgroundColor: '#4B7BEC',
+    backgroundColor: "#4B7BEC",
     borderRadius: 10,
     width: 16,
     height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   notificationText: {
-    color: 'white',
+    color: "white",
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
