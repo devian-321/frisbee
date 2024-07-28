@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TextInput } from 'react-native';
 
 const messages = [
   { id: '1', name: 'Shamik', message: 'This is good shit, I will like be o..', time: '3:30 PM' },
@@ -20,7 +20,7 @@ const MessageItem = ({ item }) => (
   </View>
 );
 
-const MessagesScreen = () => {
+const Messages = () => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -88,4 +88,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessagesScreen;
+export default Messages;

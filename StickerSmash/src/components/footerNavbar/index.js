@@ -2,21 +2,55 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-const Footer = () => {
+const Footer = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.footer}>
-      <TouchableOpacity style={styles.footerButton}>
-        <Icon name="home-outline" size={24} color="#FF7A00" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.footerButton}>
-        <Icon name="person-outline" size={24} color="#C0C0C0" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.footerButton}>
-        <Icon name="chatbubble-outline" size={24} color="#C0C0C0" />
-        <View style={styles.notificationBadge}>
-          <Text style={styles.notificationText}>5</Text>
-        </View>
-      </TouchableOpacity>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label = options.tabBarLabel !== undefined ? options.tabBarLabel : options.title !== undefined ? options.title : route.name;
+
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate({ name: route.name, merge: true });
+          }
+        };
+
+        let iconName;
+        if (route.name === 'Events') {
+          iconName = 'home-outline';
+        } else if (route.name === 'Profile') {
+          iconName = 'person-outline';
+        } else if (route.name === 'Messages') {
+          iconName = 'chatbubble-outline';
+        }
+
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={onPress}
+            style={styles.footerButton}
+          >
+            <Icon 
+              name={iconName} 
+              size={24} 
+              color={isFocused ? "#FF7A00" : "#C0C0C0"} 
+            />
+            {route.name === 'Messages' && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationText}>5</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
