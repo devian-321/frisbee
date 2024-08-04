@@ -1,4 +1,3 @@
-// src/screens/sendOTP/index.js
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -10,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Header from "../../../components/header/index.js";
+import Header from "../../../components/header/headerWithoutTitle.js";
 
 const { height, width } = Dimensions.get("window");
 

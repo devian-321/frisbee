@@ -6,18 +6,6 @@ const Header = () => {
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>FrisBee</Text>
-      <TouchableOpacity style={styles.menuButton}>
-        <Icon name="menu-outline" size={24} color="#FF7A00" />
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-
-export const HeaderWithoutSettings = ()=>{
-  return (
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>FrisBee</Text>
     </View>
   );
 };
