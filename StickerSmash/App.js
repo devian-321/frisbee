@@ -1,3 +1,4 @@
+// App.js
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -9,7 +10,9 @@ import Events from "./src/screens/events/index.js";
 import Messages from "./src/screens/messages/index.js";
 import NoConnectionScreen from "./src/screens/noConnectionScreen/index.js";
 import Profile from "./src/screens/profile/index.js";
+import SendOTP from "./src/screens/otp/sendOtp/index.js";
 import SplashScreen from "./src/screens/splashScreen/index.js";
+import VerifyOTP from "./src/screens/otp/verifyOtp/index.js";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -35,6 +38,8 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="SendOTP" component={SendOTP} />
+        <Stack.Screen name="VerifyOTP" component={VerifyOTP} />
         <Stack.Screen name="NoConnection" component={NoConnectionScreen} />
         <Stack.Screen name="MainApp" component={MainApp} />
       </Stack.Navigator>
