@@ -6,14 +6,16 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import Footer from "./src/components/footerNavbar/index.js";
 import Header from "./src/components/header/index.js";
+import Ages from "./src/screens/createUser/ages.js";
+import Name from "./src/screens/createUser/name.js";
 import Events from "./src/screens/events/index.js";
 import Messages from "./src/screens/messages/index.js";
 import NoConnectionScreen from "./src/screens/noConnectionScreen/index.js";
-import Profile from "./src/screens/profile/index.js";
 import SendOTP from "./src/screens/otp/sendOtp/index.js";
-import SplashScreen from "./src/screens/splashScreen/index.js";
 import VerifyOTP from "./src/screens/otp/verifyOtp/index.js";
-
+import Profile from "./src/screens/profile/index.js";
+import SplashScreen from "./src/screens/splashScreen/index.js";
+import Permissions from "./src/screens/createUser/permissions.js";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -42,6 +44,9 @@ const App = () => {
         <Stack.Screen name="VerifyOTP" component={VerifyOTP} />
         <Stack.Screen name="NoConnection" component={NoConnectionScreen} />
         <Stack.Screen name="MainApp" component={MainApp} />
+        <Stack.Screen name="Ages" component={Ages} />
+        <Stack.Screen name="Name" component={Name} />
+        <Stack.Screen name="Permissions" component={Permissions} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -18,7 +18,7 @@ const VerifyOTP = ({ navigation }) => {
   const [otp, setOTP] = useState(["", "", "", ""]);
 
   const handleVerify = () => {
-    navigation.replace("MainApp");
+    navigation.replace("Ages");
   };
 
   const handleResend = () => {
