@@ -16,6 +16,8 @@ import VerifyOTP from "./src/screens/otp/verifyOtp/index.js";
 import Profile from "./src/screens/profile/index.js";
 import SplashScreen from "./src/screens/splashScreen/index.js";
 import Permissions from "./src/screens/createUser/permissions.js";
+import Gender from "./src/screens/createUser/gender.js";
+import PaymentsPage from "./src/screens/payments/index.js";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -47,6 +49,8 @@ const App = () => {
         <Stack.Screen name="Ages" component={Ages} />
         <Stack.Screen name="Name" component={Name} />
         <Stack.Screen name="Permissions" component={Permissions} />
+        <Stack.Screen name="Gender" component={Gender} />
+        <Stack.Screen name="Payments" component={PaymentsPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

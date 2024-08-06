@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   Dimensions,
   Image,
   SafeAreaView,
@@ -10,14 +11,43 @@ import {
   View,
 } from "react-native";
 import Header from "../../../components/header/headerWithoutTitle.js";
+import { sendOTP } from "../../../apiServices/apiServices.js";
 
 const { height, width } = Dimensions.get("window");
 
 const SendOTP = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isValidNumber, setIsValidNumber] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendOTP = () => {
-    navigation.navigate("VerifyOTP");
+  const validateIndianPhoneNumber = (number) => {
+    const indianPhoneRegex = /^[6-9]\d{9}$/;
+    return indianPhoneRegex.test(number);
+  };
+
+  const handlePhoneNumberChange = (text) => {
+    setPhoneNumber(text);
+    setIsValidNumber(validateIndianPhoneNumber(text));
+  };
+
+  const handleSendOTP = async () => {
+    if (isValidNumber) {
+      setIsLoading(true);
+      try {
+        const response = await sendOTP(`91${phoneNumber}`);
+
+        if (response.message === "OTP sent successfully") {
+          navigation.navigate("VerifyOTP", { phoneNumber: phoneNumber });
+        } else {
+          Alert.alert("Error", "Failed to send OTP. Please try again.");
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error", "An error occurred. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -37,11 +67,21 @@ const SendOTP = ({ navigation }) => {
             placeholder="Enter your phone number"
             placeholderTextColor="#999"
             value={phoneNumber}
-            onChangeText={setPhoneNumber}
+            onChangeText={handlePhoneNumberChange}
             keyboardType="phone-pad"
+            maxLength={10}
           />
-          <TouchableOpacity style={styles.button} onPress={handleSendOTP}>
-            <Text style={styles.buttonText}>SEND OTP</Text>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              (!isValidNumber || isLoading) && styles.disabledButton,
+            ]}
+            onPress={handleSendOTP}
+            disabled={!isValidNumber || isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? "SENDING OTP..." : "SEND OTP"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -98,6 +138,9 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#CCCCCC",
   },
 });
 

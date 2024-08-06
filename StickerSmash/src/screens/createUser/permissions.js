@@ -29,7 +29,7 @@ const Permissions = ({ navigation }) => {
   const handleNext = () => {
     console.log("Location access:", locationAccess);
     console.log("Contact access:", contactAccess);
-    navigation.navigate('MainApp');
+    navigation.navigate('Gender');
   };
 
   return (

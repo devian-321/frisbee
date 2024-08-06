@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const Card = ({ user, attendees }) => {
+const Card = ({ user, attendees,navigation }) => {
     const { image, eventTitle, eventDate, eventLocation } = user;
 
     return (
