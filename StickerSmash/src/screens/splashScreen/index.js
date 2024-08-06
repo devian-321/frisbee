@@ -23,7 +23,7 @@ const SplashScreen = ({ navigation }) => {
   }));
 
   const navigateToMainApp = () => {
-    navigation.replace("MainApp");
+    navigation.replace("SendOTP");
   };
 
   useEffect(() => {

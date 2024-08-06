@@ -57,6 +57,13 @@ const Events = () => {
     // You might want to update some state or make an API call here
   }, []);
 
+  const handleExpand = useCallback(
+    (user) => {
+      setExpandedUser(expandedUser === user ? null : user);
+    },
+    [expandedUser]
+  );
+
   const renderItem = useCallback(
     ({ item }) => (
       <View style={styles.carouselItem}>
@@ -64,12 +71,12 @@ const Events = () => {
           user={item}
           attendees={users}
           expanded={expandedUser === item}
-          onExpand={() => setExpandedUser(expandedUser === item ? null : item)}
+          onExpand={() => handleExpand(item)}
           onGoing={handleGoing}
         />
       </View>
     ),
-    [expandedUser, users, handleGoing]
+    [expandedUser, users, handleGoing, handleExpand]
   );
 
   const getItemLayout = useCallback(

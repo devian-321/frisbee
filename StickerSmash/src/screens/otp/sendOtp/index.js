@@ -35,7 +35,7 @@ const SendOTP = ({ navigation }) => {
       setIsLoading(true);
       try {
         const response = await sendOTP(`91${phoneNumber}`);
-
+        
         if (response.message === "OTP sent successfully") {
           navigation.navigate("VerifyOTP", { phoneNumber: phoneNumber });
         } else {
