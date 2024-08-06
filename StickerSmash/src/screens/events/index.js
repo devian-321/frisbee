@@ -1,13 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
@@ -18,36 +10,6 @@ import Card from "../../components/tinderCard/index.js";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-
-const ExpandedCard = ({ user, attendees, onClose }) => (
-  <ScrollView style={styles.expandedCard}>
-    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-      <Text>Close</Text>
-    </TouchableOpacity>
-    <Card user={user} attendees={attendees} />
-    <Text style={styles.guestListTitle}>LOOK WHO ARE GOING</Text>
-    <Text style={styles.guestListSubtitle}>
-      RSVP, interact & make fun plans
-    </Text>
-    <View style={styles.guestGrid}>
-      {Array(30)
-        .fill()
-        .map((_, index) => (
-          <Image
-            key={index}
-            source={{ uri: attendees[index % attendees.length].image }}
-            style={styles.guestAvatar}
-          />
-        ))}
-    </View>
-  </ScrollView>
-);
-
-const CarouselItem = React.memo(({ user, attendees, onExpand }) => (
-  <TouchableOpacity onPress={() => onExpand(user)} style={styles.carouselItem}>
-    <Card user={user} attendees={attendees} />
-  </TouchableOpacity>
-));
 
 const Events = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -89,15 +51,25 @@ const Events = () => {
     },
   });
 
+  const handleGoing = useCallback(() => {
+    // Implement the logic for when user clicks "I'm Going"
+    console.log("User is going to the event");
+    // You might want to update some state or make an API call here
+  }, []);
+
   const renderItem = useCallback(
     ({ item }) => (
-      <CarouselItem
-        user={item}
-        attendees={users}
-        onExpand={(user) => setExpandedUser(user)}
-      />
+      <View style={styles.carouselItem}>
+        <Card
+          user={item}
+          attendees={users}
+          expanded={expandedUser === item}
+          onExpand={() => setExpandedUser(expandedUser === item ? null : item)}
+          onGoing={handleGoing}
+        />
+      </View>
     ),
-    [users]
+    [expandedUser, users, handleGoing]
   );
 
   const getItemLayout = useCallback(
@@ -113,28 +85,21 @@ const Events = () => {
 
   return (
     <View style={styles.content}>
-      {expandedUser ? (
-        <ExpandedCard
-          user={expandedUser}
-          attendees={users}
-          onClose={() => setExpandedUser(null)}
-        />
-      ) : (
-        <Animated.FlatList
-          ref={flatListRef}
-          data={extendedUsers}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={onScrollHandler}
-          scrollEventThrottle={16}
-          getItemLayout={getItemLayout}
-          initialScrollIndex={users.length}
-          removeClippedSubviews={true}
-        />
-      )}
+      <Animated.FlatList
+        ref={flatListRef}
+        data={extendedUsers}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScrollHandler}
+        scrollEventThrottle={16}
+        getItemLayout={getItemLayout}
+        initialScrollIndex={users.length}
+        removeClippedSubviews={true}
+        scrollEnabled={!expandedUser}
+      />
     </View>
   );
 };
@@ -147,41 +112,9 @@ const styles = StyleSheet.create({
   },
   carouselItem: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.7,
+    height: SCREEN_HEIGHT * 0.8,
     justifyContent: "center",
     alignItems: "center",
-  },
-  expandedCard: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  closeButton: {
-    padding: 10,
-    alignSelf: "flex-end",
-  },
-  guestListTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    padding: 10,
-    textAlign: "center",
-  },
-  guestListSubtitle: {
-    fontSize: 14,
-    color: "gray",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  guestGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    padding: 10,
-  },
-  guestAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    margin: 5,
   },
 });
 
